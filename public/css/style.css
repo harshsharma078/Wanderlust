@@ -96,3 +96,20 @@ body {
     background-color: #fe424d !important;
     border: none !important;
 }
+
+/* ShowPage */
+.show-img{
+    height: 30vh;
+}
+
+.btns {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 4rem;
+}
+.show-card{
+    padding-left: 0;
+    padding-right: 0;
+}
