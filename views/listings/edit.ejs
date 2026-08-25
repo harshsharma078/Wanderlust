@@ -1,57 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderLust</title>
-</head>
-<body>
+<% layout("/layouts/boilerplate") %>
 
-    <h3>Edit your Listings</h3>
+<div class="row">
+    <div class="col-8 offset-2">
 
-    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT">
+        <h3>Edit your Listing</h3>
 
-        <input 
-            name="listing[title]" 
-            value="<%= listing.title %>" 
-            type="text"
-        />
-        <br><br>
+        <form method="POST" action="/listings/<%= listing._id %>?_method=PUT">
 
-        <textarea name="listing[description]"><%= listing.description %></textarea>
-        <br><br>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input 
+                    name="listing[title]" 
+                    value="<%= listing.title %>" 
+                    type="text" 
+                    class="form-control"
+                >
+            </div>
 
-        <input
-            name="listing[image][url]" 
-            value="<%= listing.image.url %>"
-            type="text"
-        >
-        <br><br>
-        
-        <input
-            name="listing[price]" 
-            value="<%= listing.price %>"
-            type="number"
-        >
-        <br><br>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea 
+                    name="listing[description]" 
+                    class="form-control"
+                ><%= listing.description %></textarea>
+            </div>
 
-        <input 
-            name="listing[country]" 
-            value="<%= listing.country %>" 
-            type="text"
-        >
-        <br><br>
+            <div class="mb-3">
+                <label for="image" class="form-label">Image Link</label>
+                <input 
+                    name="listing[image][url]" 
+                    value="<%= listing.image.url %>" 
+                    type="text" 
+                    class="form-control"
+                >
+            </div>
 
-        <input 
-            name="listing[location]" 
-            value="<%= listing.location %>" 
-            type="text"
-        >
-        <br><br>
+            <div class="row">
 
-        <button>Edit</button>
+                <div class="mb-3 col-4">
+                    <label for="price" class="form-label">Price</label>
+                    <input 
+                        name="listing[price]" 
+                        value="<%= listing.price %>" 
+                        type="number" 
+                        class="form-control"
+                    >
+                </div>
 
-    </form>
+                <div class="mb-3 col-4">
+                    <label for="country" class="form-label">Country</label>
+                    <input 
+                        name="listing[country]" 
+                        value="<%= listing.country %>" 
+                        type="text" 
+                        class="form-control"
+                    >
+                </div>
 
-</body>
-</html>
+            </div>
+
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input 
+                    name="listing[location]" 
+                    value="<%= listing.location %>" 
+                    type="text" 
+                    class="form-control"
+                >
+            </div>
+
+            <br>
+
+            <button class="btn btn-dark edit-btn ">Edit</button>
+
+        </form>
+
+    </div>
+</div>
