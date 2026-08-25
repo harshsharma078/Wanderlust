@@ -1,5 +1,5 @@
-.body{
-    
+body {
+    font-family: "Saira", sans-serif !important;
 }
 
 /*Navbar*/
@@ -61,6 +61,19 @@
 .card-body{
     padding: 0 !important;
 }
-.ard-text p{
-    font-weight: 400;
+.card-text p{
+    font-weight: 400 !important;
+}
+
+.listing-link{
+    text-decoration: none;
+}
+
+/* card effect */
+.card-img-overlay{
+    opacity: 0;
+}
+.card-img-overlay:hover{
+    opacity: 0.2;
+    background-color: white;
 }

@@ -2,21 +2,20 @@
 
 <body>
     <h2>ALL Listings</h2>
-    <div class="row row-col-lg-3 row-col-md-2 row-col-sm-1">
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
             <% for(let listing of allListings){ %>
+        <a href="/listings/<%= listing._id %>" class="listing-link">
         <div class="card" style="width: 20rem;">
-            <img 
-                src="<%= listing.image.url %>" 
-                class="card-img-top" 
-                alt="listing_image"
-            >
+            <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
+            <div class="card-img-overlay"></div>
             <div class="card-body">
                 <p class="card-text">
-                    <%= listing.title %><br>
+                    <b><%= listing.title %></b><br>
                      &#8377; <%= listing.price.toLocaleString("en-In")%> / night
                 </p>
             </div>
         </div>
+        </a>
     <% } %>
     </div>
 </body>
