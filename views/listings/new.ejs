@@ -1,4 +1,4 @@
-```ejs
+
 <% layout("/layouts/boilerplate") %>
 
 <div class="row">
@@ -12,7 +12,7 @@
               novalidate
               class="needs-validation">
 
-    
+            <!-- Title -->
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
 
@@ -28,7 +28,8 @@
                 <div class="invalid-feedback">
                     Please enter a title.
                 </div>
-                 <div class="valid-feedback">
+
+                <div class="valid-feedback">
                     Title looks good.
                 </div>
             </div>
@@ -46,28 +47,32 @@
                 ></textarea>
 
                 <div class="invalid-feedback">
-                    Please enter a short description.
+                    Please enter a description.
+                </div>
+
+                <div class="valid-feedback">
+                    Description looks good.
                 </div>
             </div>
 
 
             <!-- Image -->
-            <div class="mb-3">
-                <label for="image" class="form-label">Image Link</label>
+       
+        <div class="mb-3">
+        <label for="image" class="form-label">Image Link</label>
 
-                <input
-                    name="listing[image]"
-                    id="image"
-                    placeholder="Enter Image URL/Link"
-                    type="text"
-                    class="form-control"
-                >
+            <input
+                name="listing[image][url]"
+                id="image"
+                placeholder="Enter Image URL/Link"
+                type="text"
+                class="form-control"
+            >
 
-                <div class="invalid-feedback">
-                    Please enter a valid image URL.
-                </div>
+            <div class="valid-feedback">
+                Image link looks good.
             </div>
-
+        </div>
 
             <div class="row">
 
@@ -79,14 +84,17 @@
                         name="listing[price]"
                         id="price"
                         placeholder="1200"
-                        type="number"
+                        type="text"
                         class="form-control"
-                        min="1"
                         required
                     >
 
                     <div class="invalid-feedback">
-                        Price should be valid
+                        Please enter a valid price.
+                    </div>
+
+                    <div class="valid-feedback">
+                        Price looks good.
                     </div>
                 </div>
 
@@ -105,7 +113,11 @@
                     >
 
                     <div class="invalid-feedback">
-                        country name should be valid
+                        Please enter a country.
+                    </div>
+
+                    <div class="valid-feedback">
+                        Country looks good.
                     </div>
                 </div>
 
@@ -126,7 +138,11 @@
                 >
 
                 <div class="invalid-feedback">
-                    location should be valid
+                    Please enter a location.
+                </div>
+
+                <div class="valid-feedback">
+                    Location looks good.
                 </div>
             </div>
 
@@ -142,3 +158,5 @@
         </form>
     </div>
 </div>
+
+<script src="/js/script.js"></script>
