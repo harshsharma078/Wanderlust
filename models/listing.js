@@ -6,12 +6,15 @@ const listingSchema = new Schema({
     type: String,
     required: true,
   },
+
   description: String,
+
   image: {
     filename: {
       type: String,
       default: "listingimage",
     },
+
     url: {
       type: String,
       default:
@@ -22,13 +25,24 @@ const listingSchema = new Schema({
           : v,
     },
   },
+
   price: {
     type: Number,
     required: true,
   },
+
   location: String,
+
   country: String,
+
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+  ],
 });
 
 const Listing = mongoose.model("Listing", listingSchema);
+
 module.exports = Listing;
