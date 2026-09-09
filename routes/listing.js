@@ -15,7 +15,6 @@ const validateListing = (req,res,next)=>{
     next();
   }
 };
-
 //Index Route
 router.get("/", wrapAsync(async(req, res) => {
   try {
@@ -31,7 +30,6 @@ router.get("/", wrapAsync(async(req, res) => {
 router.get("/new",(req,res)=>{
     res.render("listings/new.ejs");
 });
-
 
 // show route
 router.get("/:id", wrapAsync(async(req,res)=>{
@@ -54,7 +52,6 @@ router.get("/:id/edit", wrapAsync(async(req,res)=>{
     const listing = await Listing.findById(id);
     res.render("listings/edit.ejs",{listing});
 }));
-
 
 // Update route
 router.put("/:id",validateListing,wrapAsync(async(req,res)=>{
