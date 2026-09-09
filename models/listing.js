@@ -23,7 +23,7 @@ const listingSchema = new Schema({
       set: (v) =>
         v === " "
           ? "https://unsplash.com/photos/pharaoh-relief-with-scarab-cartouche-hjL7-u5_g1s"
-          : v,
+          :v,
     },
   },
 
@@ -35,7 +35,6 @@ const listingSchema = new Schema({
   location: String,
 
   country: String,
-
   reviews: [
     {
       type: Schema.Types.ObjectId,
