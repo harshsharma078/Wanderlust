@@ -38,10 +38,15 @@ const sessionOptions = {
   saveUninitialized: true
 };
 
-
-
 app.use(session(sessionOptions));
+
 app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 // Root route
 app.get("/", async (req, res, next) => {
@@ -53,15 +58,8 @@ app.get("/", async (req, res, next) => {
   }
 });
 
-
-app.use((req,res,next)=>{
-  res.locals.success = req.flash("success");
-  next();
-});
-
 // Listing routes
 app.use("/listings", listings);
-
 // Review routes
 app.use("/listings/:id/reviews", reviews);
 
@@ -76,7 +74,6 @@ app.use((err, req, res, next) => {
     statuscode = 500,
     message = "Something went wrong!",
   } = err;
-
   res.status(statuscode).render("error.ejs", { message });
 });
 
