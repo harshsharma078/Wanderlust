@@ -38,8 +38,10 @@ const sessionOptions = {
   saveUninitialized: true
 };
 
-app.use(session(sessionOptions));
 
+
+app.use(session(sessionOptions));
+app.use(flash());
 
 // Root route
 app.get("/", async (req, res, next) => {
@@ -49,6 +51,12 @@ app.get("/", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+
+app.use((req,res,next)=>{
+  res.locals.success = req.flash("success");
+  next();
 });
 
 // Listing routes
