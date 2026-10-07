@@ -29,7 +29,8 @@ router.get("/", wrapAsync(async (req, res) => {
 }));
 
 // New Route
-router.get("/new", (req, res) => {
+router.get("/new", (req, res) => { 
+  
   res.render("listings/new.ejs");
 });
 
