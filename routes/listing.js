@@ -34,7 +34,12 @@ router.get("/:id", wrapAsync(async (req, res) => {
     let { id } = req.params;
 
     const listing = await Listing.findById(id)
-        .populate("reviews")
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "author"
+            }
+        })
         .populate("owner");
 
     if (!listing) {
@@ -42,7 +47,6 @@ router.get("/:id", wrapAsync(async (req, res) => {
         return res.redirect("/listings");
     }
 
-    console.log(listing);
     res.render("listings/show.ejs", { listing });
 }));
 
