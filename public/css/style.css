@@ -10,6 +10,7 @@ body {
 }
 
 /* Navbar */
+
 .navbar {
     height: 5rem;
     background-color: white;
@@ -25,6 +26,7 @@ body {
 }
 
 /* Footer */
+
 .f-info-links a {
     color: #222222 !important;
     text-decoration: none;
@@ -60,36 +62,45 @@ body {
 }
 
 /* Cards */
+
 .listing-card {
     border: none !important;
     margin-bottom: 2rem;
+    width: 100%;
 }
 
-.card-img-top {
+.listing-card .card-img-top {
     border-radius: 1rem;
     width: 100% !important;
+    height: 20rem !important;
     object-fit: cover !important;
+    display: block;
 }
 
 /* Only listing cards */
+
 .listing-card .card-body {
     padding: 0 !important;
 }
 
-.card-text p {
+.listing-card .card-text {
     font-weight: 400 !important;
+    margin-top: 0.5rem;
 }
 
 .listing-link {
     text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 /* Card effect */
-.card-img-overlay {
+
+.listing-card .card-img-overlay {
     opacity: 0;
 }
 
-.card-img-overlay:hover {
+.listing-card .card-img-overlay:hover {
     opacity: 0.2;
     background-color: white;
 }
@@ -100,12 +111,14 @@ body {
 }
 
 /* Edit page */
+
 .edit-btn {
     background-color: #fe424d !important;
     border: none !important;
 }
 
 /* Show Page */
+
 .show-img {
     height: 30vh;
 }
@@ -124,6 +137,7 @@ body {
 }
 
 /* Reviews */
+
 .review-card {
     border: 1px solid #dee2e6;
     border-radius: 0.75rem;
@@ -146,4 +160,27 @@ body {
 .review-card form {
     padding: 0 1rem 1rem;
     margin: 0 !important;
+}
+
+.edit-img {
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+.where-section {
+    width: 100%;
+    margin-top: 3rem;
+    clear: both;
+}
+
+.where-section h3 {
+    margin-bottom: 1rem;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 1rem;
 }
