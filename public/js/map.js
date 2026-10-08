@@ -1,7 +1,16 @@
+if (listingCoordinates) {
 
     mapboxgl.accessToken = mapToken;
+
     const map = new mapboxgl.Map({
-        container: 'map',  
-        center: [77.2090, 28.6139],  
-        zoom: 9  
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: listingCoordinates,
+        zoom: 9
     });
+
+    const marker = new mapboxgl.Marker({ color: "#fe424d" })
+        .setLngLat(listingCoordinates)
+         
+        .addTo(map);
+}
