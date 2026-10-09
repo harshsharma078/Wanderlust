@@ -1,149 +1,305 @@
-const Listing = require("../models/listing");
-const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
-const mapToken = process.env.MAP_TOKEN;
-const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+    const Listing = require("../models/listing");
+    const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
-module.exports.index = async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index", { allListings });
-};
+    const mapToken = process.env.MAP_TOKEN;
 
-module.exports.renderNewForm = (req, res) => {
-    res.render("listings/new.ejs");
-};
+    const geocodingClient = mbxGeocoding({
+        accessToken: mapToken
+    });
 
-module.exports.showListing = async (req, res) => {
-    let { id } = req.params;
+    const categoryKeywords = {
+        "Rooms": [
+            "room", "rooms", "bedroom", "bedrooms",
+            "suite", "suites", "apartment", "apartments"
+        ],
+        "Iconic Cities": [
+            "city", "cities", "urban", "downtown",
+            "metropolitan", "skyline"
+        ],
+        "Mountains": [
+            "mountain", "mountains", "hill", "hills",
+            "himalaya", "himalayas", "valley", "valleys"
+        ],
+        "Castles": [
+            "castle", "castles", "fort", "fortress",
+            "palace", "palaces"
+        ],
+        "Amazing Pools": [
+            "pool", "pools", "swimming", "infinity pool"
+        ],
+        "Camping": [
+            "camping", "campsite", "campsites",
+            "tent", "tents", "glamping"
+        ],
+        "Farms": [
+            "farm", "farms", "farmhouse", "ranch",
+            "barn", "rural"
+        ],
+        "Arctic": [
+            "arctic", "snow", "snowy", "ice",
+            "glacier", "glaciers", "tundra", "polar"
+        ]
+    };
 
-    const listing = await Listing.findById(id)
-        .populate({
-            path: "reviews",
-            populate: {
-                path: "author"
-            }
-        })
-        .populate("owner");
+    const categories = ["Trending", ...Object.keys(categoryKeywords)];
 
-    if (!listing) {
-        req.flash("error", "Listing you requested for does not exist!");
-        return res.redirect("/listings");
-    }
+    // INDEX: Display listings, categories and destination search
+    module.exports.index = async (req, res) => {
+        const allListings = await Listing.find({});
 
-    let mapCoordinates = null;
+        const requestedCategory =
+            typeof req.query.category === "string"
+                ? req.query.category.trim().toLowerCase()
+                : "trending";
 
-    // Agar geometry already hai, wahi coordinates use karo
-    if (
-        listing.geometry &&
-        listing.geometry.coordinates &&
-        listing.geometry.coordinates.length === 2
-    ) {
-        mapCoordinates = listing.geometry.coordinates;
-    } else {
-        // Purani listing ke liye location se coordinates nikalo
-        const response = await geocodingClient
-            .forwardGeocode({
-                query: `${listing.location}, ${listing.country || ""}`,
-                limit: 1
-            })
-            .send();
+        const selectedCategory =
+            categories.find(
+                category => category.toLowerCase() === requestedCategory
+            ) || "Trending";
 
-        if (response.body.features.length > 0) {
-            mapCoordinates = response.body.features[0].geometry.coordinates;
+        const searchQuery =
+            typeof req.query.search === "string"
+                ? req.query.search.trim()
+                : "";
 
-            // Purani listing me geometry permanently save kar do
-            listing.geometry = response.body.features[0].geometry;
-            await listing.save();
+        let filteredListings = allListings;
+
+        // 1. Filter by category
+        if (selectedCategory !== "Trending") {
+            const keywords = categoryKeywords[selectedCategory];
+
+            filteredListings = filteredListings.filter(listing => {
+                const searchableText = [
+                    listing.title,
+                    listing.description,
+                    listing.location
+                ]
+                    .filter(value => typeof value === "string")
+                    .join(" ")
+                    .toLowerCase();
+
+                return keywords.some(keyword =>
+                    searchableText.includes(keyword.toLowerCase())
+                );
+            });
         }
-    }
 
-    res.render("listings/show.ejs", {
+        // 2. Search by destination
+        if (searchQuery) {
+            const searchText = searchQuery.toLowerCase();
+
+            filteredListings = filteredListings.filter(listing => {
+                const searchableText = [
+                    listing.title,
+                    listing.location
+                ]
+                    .filter(value => typeof value === "string")
+                    .join(" ")
+                    .toLowerCase();
+
+                return searchableText.includes(searchText);
+            });
+        }
+
+        res.render("listings/index.ejs", {
+            allListings: filteredListings,
+            selectedCategory,
+            categories,
+            searchQuery
+        });
+    };
+
+
+    // NEW: Render the new listing form
+    module.exports.renderNewForm = (req, res) => {
+        res.render("listings/new.ejs");
+    };
+
+
+    // SHOW: Display one listing
+    module.exports.showListing = async (req, res) => {
+        const { id } = req.params;
+
+        const listing = await Listing.findById(id)
+            .populate({
+                path: "reviews",
+                populate: {
+                    path: "author"
+                }
+            })
+            .populate("owner");
+
+        if (!listing) {
+            req.flash("error", "Listing you requested does not exist!");
+            return res.redirect("/listings");
+        }
+
+        let coordinates = listing.geometry?.coordinates;
+
+        // Geocode older listings that have no saved coordinates
+        if (
+            (!coordinates || coordinates.length !== 2) &&
+            listing.location &&
+            mapToken
+        ) {
+            try {
+                const geoData = await geocodingClient
+                    .forwardGeocode({
+                        query: `${listing.location}, ${listing.country}`,
+                        limit: 1
+                    })
+                    .send();
+                if (geoData.body.features.length > 0) {
+                    const coordinates =
+                        geoData.body.features[0].geometry.coordinates;
+
+                    listing.geometry = {
+                    type: "Point",
+                    coordinates: coordinates
+    };
+}
+            } catch (error) {
+                console.error("Geocoding error:", error.message);
+            }
+        }
+        res.render("listings/show.ejs", {
         listing,
         mapToken,
-        mapCoordinates
+        mapCoordinates: coordinates
     });
-};
+    };
 
-module.exports.createListing = async (req, res) => {
+    module.exports.createListing = async (req, res) => {
+        const listingData = req.body.listing;
+        const newListing = new Listing(listingData);
 
-    let response = await geocodingClient
-        .forwardGeocode({
-            query: req.body.listing.location,
-            limit: 1,
-        })
-        .send();
+        newListing.owner = req.user._id;
 
-    let geometry = response.body.features[0].geometry;
+        if (req.file) {
+            newListing.image = {
+                url: req.file.path,
+                filename: req.file.filename
+            };
+        }
 
-    const newListing = new Listing(req.body.listing);
+        // Save valid Point geometry from Mapbox
+        if (mapToken && listingData.location) {
+            try {
+                const geoData = await geocodingClient
+                    .forwardGeocode({
+                        query: `${listingData.location}, ${listingData.country}`,
+                        limit: 1
+                    })
+                    .send();
 
-    newListing.owner = req.user._id;
+                if (geoData.body.features.length > 0) {
+                    const coordinates =
+                        geoData.body.features[0].geometry.coordinates;
 
-    newListing.geometry = geometry;
+                    newListing.geometry = {
+                        type: "Point",
+                        coordinates: coordinates
+                    };
+                }
+            } catch (error) {
+                console.error("Geocoding error:", error.message);
+            }
+        }
 
-    if (req.file) {
-        newListing.image = {
-            url: req.file.path,
-            filename: req.file.filename
-        };
-    }
+        await newListing.save();
 
-    await newListing.save();
+        req.flash("success", "New Listing Created!");
+        res.redirect("/listings");
+    };
 
-    req.flash("success", "New Listing Created!");
-    res.redirect("/listings");
-};
-
+    // EDIT: Render the edit form
 module.exports.renderEditForm = async (req, res) => {
-    let { id } = req.params;
+    const { id } = req.params;
 
     const listing = await Listing.findById(id);
 
     if (!listing) {
-        req.flash("error", "Listing you requested for does not exist!");
+        req.flash("error", "Listing you requested does not exist!");
         return res.redirect("/listings");
     }
-
-    let originalImageUrl = listing.image.url;
-
-    originalImageUrl = originalImageUrl.replace(
-        "/upload",
-        "/upload/h_300,w_250"
-    );
 
     res.render("listings/edit.ejs", {
         listing,
-        originalImageUrl
+        originalImageUrl: listing.image?.url
     });
 };
 
+
+ 
+// UPDATE: Update a listing
 module.exports.updateLitings = async (req, res) => {
-    let { id } = req.params;
+    const { id } = req.params;
+    const listingData = req.body.listing;
 
     const listing = await Listing.findById(id);
 
-    await Listing.findByIdAndUpdate(id, {
-        ...req.body.listing
-    });
+    if (!listing) {
+        req.flash("error", "Listing you requested does not exist!");
+        return res.redirect("/listings");
+    }
 
+    // Update normal listing fields only
+    listing.title = listingData.title;
+    listing.description = listingData.description;
+    listing.price = listingData.price;
+    listing.location = listingData.location;
+    listing.country = listingData.country;
+
+    // Update image only if a new image is uploaded
     if (req.file) {
         listing.image = {
             url: req.file.path,
             filename: req.file.filename
         };
-
-        await listing.save();
     }
 
-    req.flash("success", "Listing Updated");
-    res.redirect(`/listings/${id}`);
+    // Update geometry using valid GeoJSON Point
+    if (mapToken && listingData.location && listingData.country) {
+        try {
+            const geoData = await geocodingClient
+                .forwardGeocode({
+                    query: `${listingData.location}, ${listingData.country}`,
+                    limit: 1
+                })
+                .send();
+
+            if (geoData.body.features.length > 0) {
+                const coordinates =
+                    geoData.body.features[0].geometry.coordinates;
+
+                listing.geometry = {
+                    type: "Point",
+                    coordinates: coordinates
+                };
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error.message);
+        }
+    }
+
+    await listing.save();
+
+    req.flash("success", "Listing Updated!");
+    res.redirect(`/listings/${listing._id}`);
 };
 
-module.exports.destroyListing = async (req, res) => {
-    let { id } = req.params;
+    // DELETE: Delete a listing
+    module.exports.destroyListing = async (req, res) => {
+        const { id } = req.params;
 
-    await Listing.findByIdAndDelete(id);
+        const deletedListing = await Listing.findByIdAndDelete(id);
 
-    req.flash("success", "Listing Deleted Successfully!");
-    res.redirect("/listings");
-};
+        if (!deletedListing) {
+            req.flash("error", "Listing you requested does not exist!");
+            return res.redirect("/listings");
+        }
+
+        req.flash("success", "Listing Deleted!");
+        res.redirect("/listings");
+    };
