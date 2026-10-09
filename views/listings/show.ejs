@@ -194,7 +194,7 @@
                             <div class="card-body py-2 px-3">
 
                                 <h6 class="card-title mb-1">
-                                    <%= review.author.username %>
+                                    <%= review.author ? review.author.username : "Unknown User" %>
                                 </h6>
 
                                 <p
