@@ -130,13 +130,13 @@ app.all("/{*splat}", (req, res, next) => {
 
 // Error Handler
 app.use((err, req, res, next) => {
-    let {
-        statuscode = 500,
-        message = "Something went wrong!",
-    } = err;
+    console.error("ACTUAL ERROR:", err);
 
-    res.status(statuscode).render("error.ejs", { message });
-});
+    const statusCode = err.statuscode || err.statusCode || 500;
+    const message = err.message || "Something went wrong!";
+
+    res.status(statusCode).render("error.ejs", { message });
+}); 
 
 app.listen(8080, () => {
     console.log("Server is Listening to port 8080");
