@@ -128,17 +128,16 @@ app.all("/{*splat}", (req, res, next) => {
     next(new ExpressError(404, "Page Not Found"));
 });
 
-// Error Handler
+
 app.use((err, req, res, next) => {
-    console.error("ACTUAL ERROR:", err);
+    console.error("ERROR MESSAGE:", err.message);
+    console.error("ERROR STACK:", err.stack);
 
     const statusCode = err.statuscode || err.statusCode || 500;
-    const message = err.message || "Something went wrong!";
 
-    res.status(statusCode).render("error.ejs", { message });
-}); 
-
-app.listen(8080, () => {
-    console.log("Server is Listening to port 8080");
+    res.status(statusCode).render("error.ejs", {
+        message: process.env.NODE_ENV === "production"
+            ? "Request failed. Please check server logs."
+            : err.message
+    });
 });
- 
