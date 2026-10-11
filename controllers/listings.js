@@ -128,19 +128,21 @@ module.exports.showListing = async (req, res) => {
                 path: "author"
             }
         })
-        .populate({
-            path: "owner",
-            model: "User"
-        });
+        .populate("owner");
 
     if (!listing) {
         req.flash("error", "Listing you requested does not exist!");
         return res.redirect("/listings");
     }
 
+    console.log("LISTING OWNER DEBUG:", {
+        listingId: listing._id,
+        owner: listing.owner,
+        ownerUsername: listing.owner?.username
+    });
+
     let coordinates = listing.geometry?.coordinates;
 
-    // Geocode older listings that have no saved coordinates
     if (
         (!coordinates || coordinates.length !== 2) &&
         listing.location &&
@@ -155,12 +157,12 @@ module.exports.showListing = async (req, res) => {
                 .send();
 
             if (geoData.body.features.length > 0) {
-                const coordinates =
+                coordinates =
                     geoData.body.features[0].geometry.coordinates;
 
                 listing.geometry = {
                     type: "Point",
-                    coordinates: coordinates
+                    coordinates
                 };
             }
         } catch (error) {
@@ -168,13 +170,13 @@ module.exports.showListing = async (req, res) => {
         }
     }
 
-    res.render("listings/show.ejs", {
+    return res.render("listings/show.ejs", {
         listing,
         mapToken,
         mapCoordinates: coordinates
     });
 };
-
+ 
 module.exports.createListing = async (req, res) => {
     const listingData = req.body.listing;
     const newListing = new Listing(listingData);
